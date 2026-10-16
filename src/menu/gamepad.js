@@ -3,7 +3,7 @@
  * die seit dem letzten Aufruf neu gedrueckt wurden (Flanken).
  *
  * Tasten tragen die Indizes des Standard-Mappings (0 = A, 1 = B, 3 = Y,
- * 9 = Start, 12-15 = D-Pad). Der linke Stick meldet zusaetzlich
+ * 8 = Select, 9 = Start, 12-15 = D-Pad). Der linke Stick meldet zusaetzlich
  * "left" / "right" / "up" / "down", sobald er weit genug ausgelenkt ist.
  */
 
@@ -13,12 +13,21 @@ export const PAD = {
   A: 0,
   B: 1,
   Y: 3,
+  SELECT: 8,
   START: 9,
   DPAD_UP: 12,
   DPAD_DOWN: 13,
   DPAD_LEFT: 14,
   DPAD_RIGHT: 15,
 };
+
+/**
+ * Menue-Taste: Select - beim XENSIV Game Controller mit "Control"
+ * beschriftet, eine Start-Taste hat er nicht. Start bleibt fuer gewoehnliche
+ * Gamepads zusaetzlich belegt.
+ */
+export const MENU_BUTTONS = [PAD.SELECT, PAD.START];
+export const MENU_BUTTON_LABEL = "Control";
 
 export class GamepadPoller {
   constructor() {

@@ -21,15 +21,17 @@ weiterhin getrennte Bestenlisten; die jeweils beste Zeit steht im Hauptmenue.
 | ----------------------------------------- | -------------- |
 | Maus: Klick auf eine Karte                | Map starten    |
 | `←` `→` / `A` `D`, D-Pad, linker Stick    | Map auswaehlen |
-| `Enter` / `Leertaste`, Gamepad F (A) / T (Y) / Start | Map starten |
+| `Enter` / `Leertaste`, Gamepad F (A) / T (Y) | Map starten |
 | `1` / `2`                                 | Map direkt starten |
 
 **Im Spiel zurueck ins Hauptmenue**
 
-Button *Main menu* oben in der Mitte, Taste `M` oder **Start** am Gamepad.
+Button *Main menu* oben in der Mitte, Taste `M` oder **Control** (Select) am
+Gamepad - der XENSIV Game Controller hat keine Start-Taste; bei anderen
+Gamepads geht zusaetzlich Start.
 Ein Dialog fragt nach, das Spiel ist so lange pausiert (Uhr steht):
 bestaetigen mit `Enter` bzw. T (Y), weiterspielen mit `Esc` / `M` bzw. F (A),
-B oder Start.
+B oder Control.
 
 Die gewaehlte Map steht in der URL (`?map=controller` bzw. `?map=mouse`) –
 ein Reload bleibt in der Map, die Browser-Zuruecktaste fuehrt ins Menue.

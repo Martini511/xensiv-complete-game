@@ -5,8 +5,9 @@ import { GamepadPoller, PAD, hasAny } from "./gamepad.js";
  * Hauptbildschirm mit der Map-Auswahl.
  *
  * Bedienung: Maus (Hover + Klick), Tastatur (Pfeile / A D, Enter oder
- * Leertaste, 1 / 2 direkt) und Gamepad (D-Pad / linker Stick, A, Y oder
- * Start). Beim XENSIV-Controller sind A und Y mit "F" und "T" beschriftet.
+ * Leertaste, 1 / 2 direkt) und Gamepad (D-Pad / linker Stick, A oder Y; Start
+ * bei gewoehnlichen Gamepads). Beim XENSIV-Controller sind A und Y mit "F"
+ * und "T" beschriftet.
  */
 export class MainMenu {
   /**

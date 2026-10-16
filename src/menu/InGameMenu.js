@@ -1,12 +1,12 @@
-import { GamepadPoller, PAD, hasAny } from "./gamepad.js";
+import { GamepadPoller, MENU_BUTTONS, PAD, hasAny } from "./gamepad.js";
 
 /**
  * Rueckweg aus einer Map ins Hauptmenue: kleiner Button oben in der Mitte,
- * Taste M bzw. Start am Gamepad. Vor dem Verlassen fragt ein Dialog nach -
- * das Spiel ist so lange pausiert (Loop und Eingaben angehalten).
+ * Taste M bzw. Control (Select) am Gamepad. Vor dem Verlassen fragt ein
+ * Dialog nach - das Spiel ist so lange pausiert (Loop und Eingaben angehalten).
  *
  * Bestaetigen: Enter / Y (beim XENSIV-Controller "T").
- * Abbrechen:   Esc / M / A ("F") / B / Start.
+ * Abbrechen:   Esc / M / A ("F") / B / Control.
  */
 export class InGameMenu {
   /**
@@ -122,7 +122,7 @@ export class InGameMenu {
 
     if (this.isOpen) {
       if (just.has(PAD.Y)) this.onExit();
-      else if (hasAny(just, PAD.A, PAD.B, PAD.START)) this.close();
+      else if (hasAny(just, PAD.A, PAD.B, ...MENU_BUTTONS)) this.close();
       return;
     }
 
@@ -132,7 +132,7 @@ export class InGameMenu {
       return;
     }
 
-    if (just.has(PAD.START)) this.open();
+    if (hasAny(just, ...MENU_BUTTONS)) this.open();
   }
 }
 

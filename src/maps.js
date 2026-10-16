@@ -6,6 +6,7 @@
 
 import * as controllerScores from "./maps/controller/core/leaderboard.js";
 import * as mouseScores from "./maps/mouse/core/leaderboard.js";
+import { MENU_BUTTON_LABEL } from "./menu/gamepad.js";
 
 const CONTROLLER_ART = `
 <svg viewBox="0 0 200 120" aria-hidden="true">
@@ -46,7 +47,7 @@ export const MAPS = [
     art: CONTROLLER_ART,
     scores: controllerScores,
     /** Tastenhinweise im "Zurueck zum Hauptmenue"-Dialog. */
-    keys: { menu: "M \u00b7 Start", confirm: "T \u00b7 Enter", cancel: "F \u00b7 Esc" },
+    keys: { menu: `M \u00b7 ${MENU_BUTTON_LABEL}`, confirm: "T \u00b7 Enter", cancel: "F \u00b7 Esc" },
     load: () => import("./maps/controller/core/Game.js"),
   },
   {
@@ -57,7 +58,7 @@ export const MAPS = [
     tags: ["Mouse + keyboard", "Gamepad fallback", "6 sensors"],
     art: MOUSE_ART,
     scores: mouseScores,
-    keys: { menu: "M \u00b7 Start", confirm: "Enter \u00b7 T", cancel: "Esc \u00b7 F" },
+    keys: { menu: `M \u00b7 ${MENU_BUTTON_LABEL}`, confirm: "Enter \u00b7 T", cancel: "Esc \u00b7 F" },
     load: () => import("./maps/mouse/core/Game.js"),
   },
 ];
