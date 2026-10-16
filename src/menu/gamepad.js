@@ -9,6 +9,29 @@
 
 const STICK_THRESHOLD = 0.6;
 
+/** sessionStorage: Seitenwechsel per Gamepad-Taste, die evtl. noch gehalten wird. */
+const CARRY_OVER_KEY = "sensor-hunt.pad-carry-over";
+
+/** Vor einem Seitenwechsel, den eine Gamepad-Taste ausgeloest hat. */
+export function markPadCarryOver() {
+  try {
+    window.sessionStorage.setItem(CARRY_OVER_KEY, "1");
+  } catch {
+    // Ohne sessionStorage zaehlt die gehaltene Taste eben sofort.
+  }
+}
+
+/** Liest (und loescht) die Markierung aus markPadCarryOver(). */
+export function takePadCarryOver() {
+  try {
+    const value = window.sessionStorage.getItem(CARRY_OVER_KEY) === "1";
+    window.sessionStorage.removeItem(CARRY_OVER_KEY);
+    return value;
+  } catch {
+    return false;
+  }
+}
+
 export const PAD = {
   A: 0,
   B: 1,
@@ -30,9 +53,17 @@ export const MENU_BUTTONS = [PAD.SELECT, PAD.START];
 export const MENU_BUTTON_LABEL = "Control";
 
 export class GamepadPoller {
-  constructor() {
+  /**
+   * @param {{ ignoreCarriedOver?: boolean }} [options] `ignoreCarriedOver`:
+   *   Die Seite wurde per Gamepad-Taste geoeffnet (takePadCarryOver()). Was
+   *   beim ersten Auftauchen des Controllers gedrueckt ist, zaehlt dann erst
+   *   nach dem Loslassen - der Browser meldet den Controller nach einem
+   *   Seitenwechsel erst mit dieser noch gehaltenen Taste.
+   */
+  constructor({ ignoreCarriedOver = false } = {}) {
     /** Beim allerersten Abruf schon gehaltene Tasten zaehlen nicht als neu. */
     this._previous = null;
+    this._ignoreCarriedOver = ignoreCarriedOver;
   }
 
   /** @returns {{ just: Set<number|string>, anyPressed: boolean }} */
@@ -52,8 +83,15 @@ export class GamepadPoller {
       else if (y > STICK_THRESHOLD) pressed.add("down");
     }
 
+    // Erster Abruf mit sichtbarem Controller nach einem Seitenwechsel per Taste:
+    // das Gehaltene ist "mitgebracht" und zaehlt nicht als neuer Druck.
+    const carriedOver = this._ignoreCarriedOver && pad !== null;
+    if (carriedOver) this._ignoreCarriedOver = false;
+
     const just = new Set(
-      this._previous ? [...pressed].filter((key) => !this._previous.has(key)) : []
+      this._previous && !carriedOver
+        ? [...pressed].filter((key) => !this._previous.has(key))
+        : []
     );
     this._previous = pressed;
     return { just, anyPressed: pressed.size > 0 };

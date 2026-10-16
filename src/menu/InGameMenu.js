@@ -1,4 +1,4 @@
-import { GamepadPoller, MENU_BUTTONS, PAD, hasAny } from "./gamepad.js";
+import { GamepadPoller, MENU_BUTTONS, PAD, hasAny, markPadCarryOver } from "./gamepad.js";
 
 /**
  * Rueckweg aus einer Map ins Hauptmenue: kleiner Button oben in der Mitte,
@@ -121,8 +121,12 @@ export class InGameMenu {
     const { just, anyPressed } = this._pad.poll();
 
     if (this.isOpen) {
-      if (just.has(PAD.Y)) this.onExit();
-      else if (hasAny(just, PAD.A, PAD.B, ...MENU_BUTTONS)) this.close();
+      if (just.has(PAD.Y)) {
+        // T ist beim Seitenwechsel meist noch gedrueckt - das Hauptmenue soll
+        // das nicht als "Map starten" werten.
+        markPadCarryOver();
+        this.onExit();
+      } else if (hasAny(just, PAD.A, PAD.B, ...MENU_BUTTONS)) this.close();
       return;
     }
 

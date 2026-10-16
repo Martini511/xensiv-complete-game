@@ -1,5 +1,5 @@
 import logoUrl from "../shared/assets/lowres-Logo_Infineon_RGB.eps.png";
-import { GamepadPoller, PAD, hasAny } from "./gamepad.js";
+import { GamepadPoller, PAD, hasAny, takePadCarryOver } from "./gamepad.js";
 
 /**
  * Hauptbildschirm mit der Map-Auswahl.
@@ -20,7 +20,7 @@ export class MainMenu {
     this.onSelect = onSelect;
     this.selected = 0;
     this._chosen = false;
-    this._pad = new GamepadPoller();
+    this._pad = new GamepadPoller({ ignoreCarriedOver: takePadCarryOver() });
     this._frameId = null;
 
     this.element = document.createElement("div");
@@ -136,6 +136,9 @@ export class MainMenu {
   }
 
   _onKeyDown(event) {
+    // Wiederholung einer gehaltenen Taste - z.B. Enter aus dem Dialog im Spiel,
+    // das hier sonst gleich wieder eine Map starten wuerde.
+    if (event.repeat) return;
     if (event.ctrlKey || event.metaKey || event.altKey) return;
 
     switch (event.code) {
