@@ -1,0 +1,18 @@
+{
+  "name": "sensor-hunt",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Sensor Hunt: Third-Person-Adventure im Browser mit Three.js - Hauptmenue mit den Maps XENSIV Game Controller und XENSIV Mouse",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "three": "^0.169.0"
+  },
+  "devDependencies": {
+    "vite": "^5.4.8"
+  }
+}
