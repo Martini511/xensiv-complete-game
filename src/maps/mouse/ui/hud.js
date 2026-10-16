@@ -290,6 +290,40 @@ export class Prompt {
   }
 }
 
+/**
+ * Kurzuebersicht der Notfall-Steuerung per Controller - erscheint, sobald mit
+ * dem Controller gespielt wird, und verschwindet wieder, wenn Maus oder
+ * Tastatur uebernehmen. Gegenstueck zur Tastatur-Hinweisbox im Controller Game.
+ */
+export class GamepadHint {
+  constructor(parent = document.body) {
+    this.element = document.createElement("div");
+    this.element.id = "gamepad-hint";
+    this.element.hidden = true;
+
+    const title = document.createElement("div");
+    title.className = "gamepad-hint-title";
+    title.textContent = "Controller";
+
+    const keys = document.createElement("div");
+    keys.textContent =
+      "Left stick move \u00b7 Right stick look \u00b7 F jump \u00b7 T use \u00b7 I explore \u00b7 " +
+      "L1/R1 left/right click \u00b7 L2/R2 wheel \u00b7 L3/R3 wheel click \u00b7 D-Pad \u2193 info";
+
+    this.element.append(title, keys);
+    parent.appendChild(this.element);
+  }
+
+  update(visible) {
+    if (this.element.hidden === !visible) return;
+    this.element.hidden = !visible;
+  }
+
+  dispose() {
+    this.element.remove();
+  }
+}
+
 function heading(text) {
   const node = document.createElement("h1");
   node.textContent = text;
@@ -334,21 +368,36 @@ function tabSection({ label, key }, children) {
   return section;
 }
 
-/** Eine Zeile je Taste - gerendert als zweispaltiges Grid. */
+/**
+ * Eine Zeile je Taste - gerendert als Grid. Hat eine Zeile eine
+ * Controller-Belegung (Notfall-Steuerung), kommt eine eigene Spalte samt
+ * Kopfzeile dazu.
+ */
 function controlTable(controls) {
   const table = document.createElement("div");
   table.className = "control-table";
+  const withGamepad = controls.some((row) => row.gamepad);
 
-  for (const { key, action } of controls) {
-    const keyNode = document.createElement("span");
-    keyNode.className = "control-key";
-    keyNode.textContent = key;
+  const cell = (className, text) => {
+    const node = document.createElement("span");
+    node.className = className;
+    node.textContent = text;
+    return node;
+  };
 
-    const actionNode = document.createElement("span");
-    actionNode.className = "control-action";
-    actionNode.textContent = action;
+  if (withGamepad) {
+    table.classList.add("has-gamepad");
+    table.append(
+      cell("control-head", "Mouse & keyboard"),
+      cell("control-head", "Controller"),
+      cell("control-head", "")
+    );
+  }
 
-    table.append(keyNode, actionNode);
+  for (const { key, gamepad, action } of controls) {
+    table.append(cell("control-key", key));
+    if (withGamepad) table.append(cell("control-key is-gamepad", gamepad ?? ""));
+    table.append(cell("control-action", action));
   }
 
   return table;

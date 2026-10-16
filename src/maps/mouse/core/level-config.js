@@ -175,6 +175,43 @@ export const CONTROLS = {
 /** Maus-Empfindlichkeit: Drehung in Radiant pro Pixel Mausbewegung. */
 export const MOUSE_SENSITIVITY = 0.0025;
 
+/**
+ * Notfall-Steuerung per Controller (Gegenstueck zur Tastatur-Notfallsteuerung
+ * im Controller Game). Laeuft immer parallel zu Maus und Tastatur.
+ *
+ * Linker Stick laeuft, rechter Stick dreht die Kamera. Die Aktionen nutzen
+ * dieselben Namen wie CONTROLS.actions, die Tasten die Namen aus
+ * GamepadManager.js (Beschriftung des XENSIV Game Controllers: A = F,
+ * Y = T, X = I). Die Mausbedienung liegt auf Schultern und Triggern:
+ *   L1 / R1 = linke / rechte Maustaste
+ *   L2 / R2 = Mausrad hoch / runter (analog - je tiefer, desto schneller)
+ *   L3 / R3 = Klick aufs Mausrad (Stick druecken)
+ */
+export const GAMEPAD_CONTROLS = {
+  actions: {
+    action: ["Y"],
+    jump: ["A"],
+    explore: ["X"],
+    info: ["DPAD_DOWN"],
+    reset: [],
+    resetLeft: ["DPAD_LEFT"],
+    resetRight: ["DPAD_RIGHT"],
+    tabInfo: ["DPAD_UP"],
+    tabControls: ["DPAD_DOWN"],
+    leftClick: ["L1"],
+    rightClick: ["R1"],
+    wheel: ["L2", "R2", "L3", "R3"],
+    wheelClick: ["L3", "R3"],
+  },
+  /** Trigger, die das Mausrad drehen, und Raster pro Sekunde bei Vollausschlag. */
+  wheelScroll: { up: "L2", down: "R2", stepsPerSecond: 8 },
+  /** Ab diesem Triggerwert dreht das Rad - unterhalb ruht der Finger nur darauf. */
+  wheelTriggerDeadzone: 0.1,
+  /** Kamera-Drehung mit dem rechten Stick in Radiant pro Sekunde bei Vollausschlag. */
+  cameraSpeed: 2.6,
+  deadzone: 0.18,
+};
+
 export const OPPOSITE_SIDE = { top: "bottom", bottom: "top" };
 
 /**

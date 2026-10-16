@@ -15,16 +15,27 @@ export const TITLE = {
   subtitle: "XENSIV\u2122 Mouse",
 };
 
-/** Steuerung zeilenweise - wird als Tabelle im Banner gerendert. */
+/**
+ * Steuerung zeilenweise - wird als Tabelle im Banner gerendert.
+ * `gamepad` ist die Notfall-Belegung fuer einen Controller (GAMEPAD_CONTROLS).
+ */
 export const CONTROLS = [
-  { key: "W A S D", action: "Move" },
-  { key: "Mouse", action: "Look around (click into the game first, or drag)" },
-  { key: SPACE, action: "Jump" },
-  { key: E, action: "Switch sides on IC9 / confirm" },
-  { key: "Left \u00b7 Right click", action: "Mark a mouse button sensor" },
-  { key: "Mouse wheel", action: "Mark a wheel sensor (scroll or click it)" },
-  { key: INFO, action: "Open this info screen again" },
-  { key: `${key("resetLeft")} + ${key("resetRight")} \u00b7 ${RESET}`, action: "Back to the intro" },
+  { key: "W A S D", gamepad: "Left stick", action: "Move" },
+  { key: "Mouse", gamepad: "Right stick", action: "Look around (click into the game first, or drag)" },
+  { key: SPACE, gamepad: "F", action: "Jump" },
+  { key: E, gamepad: "T", action: "Switch sides on IC9 / confirm" },
+  { key: "Left \u00b7 Right click", gamepad: "L1 \u00b7 R1", action: "Mark a mouse button sensor" },
+  {
+    key: "Mouse wheel",
+    gamepad: "L2 \u00b7 R2 \u00b7 L3/R3",
+    action: "Mark a wheel sensor (scroll or click it)",
+  },
+  { key: INFO, gamepad: "D-Pad \u2193", action: "Open this info screen again" },
+  {
+    key: `${key("resetLeft")} + ${key("resetRight")} \u00b7 ${RESET}`,
+    gamepad: "D-Pad \u2190 + \u2192",
+    action: "Back to the intro",
+  },
   { key: "Esc", action: "Release the mouse" },
 ];
 

@@ -54,10 +54,10 @@ export const MAPS = [
     name: "XENSIV\u2122 Mouse",
     description:
       "Explore the board inside the XENSIV mouse. Click, right-click and scroll to make its six sensors blink - and mark them all.",
-    tags: ["Mouse + keyboard", "Mouse wheel", "6 sensors"],
+    tags: ["Mouse + keyboard", "Gamepad fallback", "6 sensors"],
     art: MOUSE_ART,
     scores: mouseScores,
-    keys: { menu: "M", confirm: "Enter", cancel: "Esc" },
+    keys: { menu: "M \u00b7 Start", confirm: "Enter \u00b7 T", cancel: "Esc \u00b7 F" },
     load: () => import("./maps/mouse/core/Game.js"),
   },
 ];

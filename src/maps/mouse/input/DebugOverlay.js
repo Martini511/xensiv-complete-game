@@ -32,10 +32,17 @@ export class DebugOverlay {
       lines.push(`  Hold the left mouse button`);
       lines.push(`  and drag to look around.`);
     }
+    lines.push(
+      inputState.gamepadConnected
+        ? `<span class="status-connected">● Controller connected</span> (fallback)`
+        : `  Fallback: plug in a controller,`
+    );
+    if (!inputState.gamepadConnected) lines.push(`  then press any button.`);
 
     lines.push("");
     lines.push(`Move     x ${fmt(inputState.move.x)}  y ${fmt(inputState.move.y)}`);
     lines.push(`Mouse    x ${fmt(inputState.look.x)}  y ${fmt(inputState.look.y)}`);
+    lines.push(`R-Stick  x ${fmt(inputState.stick.x)}  y ${fmt(inputState.stick.y)}`);
     lines.push(`Keys     ${escapeHtml(inputState.keys.map(keyLabel).join(", ") || "-")}`);
 
     for (const [key, value] of Object.entries(extra)) {

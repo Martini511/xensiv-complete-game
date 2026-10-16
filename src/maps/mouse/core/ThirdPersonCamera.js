@@ -21,6 +21,8 @@ export class ThirdPersonCamera {
     this.lookDamping = options.lookDamping ?? 10;
     /** Radiant pro Pixel Mausbewegung. */
     this.mouseSensitivity = options.mouseSensitivity ?? 0.0025;
+    /** Radiant pro Sekunde bei vollem Stick-Ausschlag (Notfall-Controller). */
+    this.rotationSpeed = options.rotationSpeed ?? 2.6;
 
     this.yaw = options.yaw ?? 0;
     this.pitch = options.pitch ?? THREE.MathUtils.degToRad(18);
@@ -50,12 +52,22 @@ export class ThirdPersonCamera {
    * @param {number} dy Mausbewegung vertikal in Pixeln
    */
   look(dx, dy) {
-    this.yaw -= dx * this.mouseSensitivity;
-    this.pitch = THREE.MathUtils.clamp(
-      this.pitch + dy * this.mouseSensitivity,
-      MIN_PITCH,
-      MAX_PITCH
-    );
+    this.rotateBy(dx * this.mouseSensitivity, dy * this.mouseSensitivity);
+  }
+
+  /**
+   * Dreht mit dem rechten Controller-Stick - gleiche Richtung wie die Maus.
+   * @param {number} x Stick horizontal (-1..1)
+   * @param {number} y Stick vertikal (-1..1)
+   */
+  rotate(x, y, deltaTime) {
+    this.rotateBy(x * this.rotationSpeed * deltaTime, y * this.rotationSpeed * deltaTime);
+  }
+
+  /** Dreht um feste Winkel in Radiant. */
+  rotateBy(yawDelta, pitchDelta) {
+    this.yaw -= yawDelta;
+    this.pitch = THREE.MathUtils.clamp(this.pitch + pitchDelta, MIN_PITCH, MAX_PITCH);
   }
 
   /** Setzt die Kamera ohne Interpolation ans Ziel - z.B. nach einem Teleport. */

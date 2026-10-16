@@ -7,7 +7,7 @@ man eine der beiden Maps auswaehlt:
 | Map                         | Platine                        | Steuerung                          |
 | --------------------------- | ------------------------------ | ---------------------------------- |
 | **XENSIV™ Game Controller** | `src/maps/controller/assets/platine.glb` | Gamepad, Notfall: Tastatur + Maus |
-| **XENSIV™ Mouse**           | `src/maps/mouse/assets/XENSIV_Mouse_with_wheel.glb` | Maus + Tastatur |
+| **XENSIV™ Mouse**           | `src/maps/mouse/assets/XENSIV_Mouse_with_wheel.glb` | Maus + Tastatur, Notfall: Gamepad |
 
 Spielziel, Steuerung und Mechaniken der Maps sind unveraendert aus den
 Ursprungsprojekten uebernommen (siehe deren READMEs). Beide Maps fuehren

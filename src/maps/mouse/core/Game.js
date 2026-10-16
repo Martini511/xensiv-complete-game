@@ -5,6 +5,7 @@ import { ThirdPersonCamera } from "./ThirdPersonCamera.js";
 import { Board, HEIGHT_CELL_SIZE } from "./Board.js";
 import { IntroSequence } from "./IntroSequence.js";
 import {
+  PLATINE_BYTES,
   PLATINE_URL,
   PLAYER_URL,
   alignToPcb,
@@ -18,6 +19,7 @@ import {
   CONTROLS,
   FALL_COMMIT_MM,
   FALL_DEATH_Y,
+  GAMEPAD_CONTROLS,
   MATERIAL_OVERRIDES,
   MOUSE_SENSITIVITY,
   MOUSE_WHEEL,
@@ -39,9 +41,17 @@ import { ChipModel } from "../../../shared/entities/ChipModel.js";
 import { PortalMarker } from "../entities/PortalMarker.js";
 import { SensorMarker } from "../../../shared/entities/SensorMarker.js";
 import { KeyboardMouseInput, keyLabel } from "../input/KeyboardMouseInput.js";
+import { BUTTON_LABELS, GamepadManager } from "../input/GamepadManager.js";
 import { DebugOverlay } from "../input/DebugOverlay.js";
 import { FadeOverlay, LoadingOverlay } from "../ui/overlays.js";
-import { InfoBox, MessageOverlay, MissionHud, Prompt, TitleScreen } from "../ui/hud.js";
+import {
+  GamepadHint,
+  InfoBox,
+  MessageOverlay,
+  MissionHud,
+  Prompt,
+  TitleScreen,
+} from "../ui/hud.js";
 import { addScore, formatTime, loadScores } from "./leaderboard.js";
 import {
   BRIEFING,
@@ -110,15 +120,24 @@ const PART_FADE_RATE = 10;
 
 const NO_INPUT = { x: 0, y: 0 };
 
-const ACTION_KEY = keyLabel(CONTROLS.actions.action[0]);
-const JUMP_KEY = keyLabel(CONTROLS.actions.jump[0]);
+/**
+ * Tastenname einer Aktion fuer Prompts. Wer gerade mit dem Controller spielt,
+ * bekommt die Controller-Taste, dahinter in Klammern die Maus-/Tastaturtaste -
+ * spiegelbildlich zum Controller Game.
+ */
+function inputLabel(action, device) {
+  const keyboard = keyLabel(CONTROLS.actions[action][0]);
+  const pad = GAMEPAD_CONTROLS.actions[action]?.map((button) => BUTTON_LABELS[button]);
+  if (device !== "gamepad" || !pad?.length) return keyboard;
+  return `${pad.slice(0, 2).join("/")} (${keyboard})`;
+}
 
 /**
  * Zentrale Klasse: haelt Szene, Kamera, Input und Entities zusammen und
  * betreibt die Game-Loop (Input -> Update -> Render).
  *
  * Ablauf und Spielregeln entsprechen dem Controller Game; gesteuert wird mit
- * Maus und Tastatur.
+ * Maus und Tastatur, im Notfall parallel auch mit einem Controller.
  *
  * Ablauf: `new Game(container)` -> `await game.load()` -> `game.start()`.
  * Die Loop startet erst, wenn das Platinen-Modell vollstaendig geladen ist.
@@ -151,12 +170,17 @@ export class Game {
       lookAtHeight: 0.5,
       yaw: THREE.MathUtils.degToRad(SPAWN_CAMERA_YAW_DEG),
       mouseSensitivity: MOUSE_SENSITIVITY,
+      rotationSpeed: GAMEPAD_CONTROLS.cameraSpeed,
       collider: (origin, direction, distance) =>
         this.board ? this._cameraDistance(origin, direction, distance) : distance,
     });
     this._faceSpawnDirection();
 
-    this.input = new KeyboardMouseInput(renderer.domElement, CONTROLS);
+    // Notfall-Steuerung: ein Controller laeuft immer parallel zu Maus und Tastatur.
+    this.input = new KeyboardMouseInput(renderer.domElement, CONTROLS, {
+      gamepad: new GamepadManager({ deadzone: GAMEPAD_CONTROLS.deadzone }),
+      gamepadBindings: GAMEPAD_CONTROLS,
+    });
     this.debugOverlay = new DebugOverlay(document.body);
     this.loadingOverlay = new LoadingOverlay(document.body);
     this.fadeOverlay = new FadeOverlay(document.body, PORTAL.fadeDurationMs);
@@ -164,6 +188,7 @@ export class Game {
     this.prompt = new Prompt(document.body);
     this.infoBox = new InfoBox(document.body);
     this.message = new MessageOverlay(document.body);
+    this.gamepadHint = new GamepadHint(document.body);
     this.titleScreen = null;
 
     /** "intro" | "briefing" | "playing" | "falling" | "failed" | "won" | "confirm" */
@@ -221,7 +246,7 @@ export class Game {
   async load() {
     try {
       const [gltf, player] = await Promise.all([
-        loadGLTF(PLATINE_URL, (progress) => this.loadingOverlay.setProgress(progress)),
+        loadGLTF(PLATINE_URL, (progress) => this.loadingOverlay.setProgress(progress), PLATINE_BYTES),
         loadGLTF(PLAYER_URL),
       ]);
 
@@ -299,6 +324,7 @@ export class Game {
     this.stop();
     this.debugOverlay.dispose();
     this.fadeOverlay.dispose();
+    this.gamepadHint.dispose();
     this._disposeRenderer();
   }
 
@@ -362,10 +388,13 @@ export class Game {
       this.runTime += deltaTime;
     }
 
-    // 2. Kamera aus der Maus
-    if (!locked) this.cameraRig.look(input.look.x, input.look.y);
+    // 2. Kamera aus der Maus bzw. dem rechten Controller-Stick
+    if (!locked) {
+      this.cameraRig.look(input.look.x, input.look.y);
+      this.cameraRig.rotate(input.stick.x, input.stick.y, deltaTime);
+    }
 
-    // 3. Bewegung aus WASD - relativ zur Kamera-Ausrichtung.
+    // 3. Bewegung aus WASD bzw. linkem Stick - relativ zur Kamera-Ausrichtung.
     // Wer stuerzt, hat die Kontrolle verloren - der Fall ist nicht zu retten.
     const steerable = !locked && this.state !== "falling";
     this._applyMovementInput(steerable ? input.move : NO_INPUT);
@@ -397,6 +426,7 @@ export class Game {
 
     // 6. Anzeigen + Rendern
     this.prompt.set(this._promptText(input));
+    this.gamepadHint.update(input.lastDevice === "gamepad");
     if (this.mode === "explore") {
       const points = [...this.sensors, ...this.components];
       const found = points.filter((point) => point.marked).length;
@@ -409,6 +439,7 @@ export class Game {
       side: this.currentSide,
       pos: formatPosition(this.character.position),
       switches: this.board?.slideSwitches.map((lever) => `${lever.id} ${lever.target.label}`).join(", ") ?? "-",
+      input: input.lastDevice === "gamepad" ? "Controller" : "Mouse/Keyboard",
     });
     this.renderer.render(this.scene, this.camera);
   }
@@ -419,13 +450,16 @@ export class Game {
 
   /** Text der Kontextanzeige am unteren Bildrand. */
   _promptText(input) {
-    if (this.state === "intro") return `Press ${JUMP_KEY} to skip the intro`;
+    const device = input.lastDevice;
+    if (this.state === "intro") return `Press ${inputLabel("jump", device)} to skip the intro`;
     if (this.state !== "playing" || this._isTransitioning) return null;
     if (this._nearSensor) {
-      return `Sensor ${this._nearSensor.id} - ${this._nearSensor.button} to mark it`;
+      const how = device === "gamepad" ? inputLabel(this._nearSensor.input, device) : this._nearSensor.button;
+      return `Sensor ${this._nearSensor.id} - ${how} to mark it`;
     }
-    if (this._inPortalZone) return `Press ${ACTION_KEY} to switch sides`;
-    if (!input.pointerLocked) {
+    if (this._inPortalZone) return `Press ${inputLabel("action", device)} to switch sides`;
+    // Mit dem Controller braucht es keinen Mausfang.
+    if (device !== "gamepad" && !input.pointerLocked) {
       return input.lockAvailable
         ? "Click into the game to look around with the mouse"
         : "Drag with the left mouse button to look around";

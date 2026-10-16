@@ -2,13 +2,15 @@ import { statSync } from "node:fs";
 import { defineConfig } from "vite";
 
 export default defineConfig({
-  // Unkomprimierte Groesse des Platinen-Modells der Controller-Map fuer die
-  // Ladeanzeige: GitHub Pages liefert das GLB gzip-komprimiert aus,
-  // Content-Length nennt dann nur die komprimierte Groesse - der Fortschritt
-  // schoss so ueber 100 % hinaus.
+  // Unkomprimierte Groesse der Platinen-Modelle fuer die Ladeanzeige: GitHub
+  // Pages liefert die GLBs gzip-komprimiert aus, Content-Length nennt dann nur
+  // die komprimierte Groesse - der Fortschritt schoss so ueber 100 % hinaus.
   define: {
     __PLATINE_BYTES__: JSON.stringify(
       statSync(new URL("./src/maps/controller/assets/platine.glb", import.meta.url)).size
+    ),
+    __MOUSE_PLATINE_BYTES__: JSON.stringify(
+      statSync(new URL("./src/maps/mouse/assets/XENSIV_Mouse_with_wheel.glb", import.meta.url)).size
     ),
   },
 
