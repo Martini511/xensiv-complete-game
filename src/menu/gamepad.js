@@ -46,8 +46,7 @@ export const PAD = {
 
 /**
  * Menue-Taste: Select - beim XENSIV Game Controller mit "Control"
- * beschriftet, eine Start-Taste hat er nicht. Start bleibt fuer gewoehnliche
- * Gamepads zusaetzlich belegt.
+ * beschriftet, eine Start-Taste hat er nicht. Start bleibt zusaetzlich belegt.
  */
 export const MENU_BUTTONS = [PAD.SELECT, PAD.START];
 export const MENU_BUTTON_LABEL = "Control";
@@ -101,9 +100,20 @@ export class GamepadPoller {
 function activeGamepad() {
   if (typeof navigator.getGamepads !== "function") return null;
   for (const pad of navigator.getGamepads()) {
-    if (pad && pad.connected) return pad;
+    if (pad && pad.connected && isSupportedGamepad(pad)) return pad;
   }
   return null;
 }
+
+/**
+ * Geraeteprofil des XENSIV-Controllers, wie in der Controller-Dashboard-
+ * Website und den GamepadManagern der Maps: Die Gamepad API meldet auch
+ * Geraete, die keine richtigen Controller sind - die werden ignoriert.
+ */
+const REQUIRED_BUTTONS = 16;
+const REQUIRED_AXES = 4;
+
+const isSupportedGamepad = (pad) =>
+  pad.buttons.length === REQUIRED_BUTTONS && pad.axes.length === REQUIRED_AXES;
 
 export const hasAny = (set, ...keys) => keys.some((key) => set.has(key));

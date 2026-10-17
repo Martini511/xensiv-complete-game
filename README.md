@@ -27,11 +27,17 @@ weiterhin getrennte Bestenlisten; die jeweils beste Zeit steht im Hauptmenue.
 **Im Spiel zurueck ins Hauptmenue**
 
 Button *Main menu* oben in der Mitte, Taste `M` oder **Control** (Select) am
-Gamepad - der XENSIV Game Controller hat keine Start-Taste; bei anderen
-Gamepads geht zusaetzlich Start.
+Gamepad - der XENSIV Game Controller hat keine Start-Taste; Start ist
+zusaetzlich belegt.
 Ein Dialog fragt nach, das Spiel ist so lange pausiert (Uhr steht):
 bestaetigen mit `Enter` bzw. T (Y), weiterspielen mit `Esc` / `M` bzw. F (A),
 B oder Control.
+
+**Gamepad-Filter:** Die Gamepad API meldet auch Geraete, die keine richtigen
+Controller sind. Menue und beide Maps nehmen deshalb - wie die
+Controller-Dashboard-Website - nur ein Geraet mit genau **16 Tasten und
+4 Achsen** an (`REQUIRED_BUTTONS` / `REQUIRED_AXES` in `src/menu/gamepad.js`
+und den `GamepadManager.js` der Maps). Andere Geraete werden ignoriert.
 
 Die gewaehlte Map steht in der URL (`?map=controller` bzw. `?map=mouse`) –
 ein Reload bleibt in der Map, die Browser-Zuruecktaste fuehrt ins Menue.
